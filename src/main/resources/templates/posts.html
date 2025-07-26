@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <title>Posts</title>
+    <meta name = "Author" content = "NeoCourney">
+    <meta name = "Description" content = "A collection of avaricaciously captivating and provocative blog posts that entice the mind and soul.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/posts.css}">
+
+</head>
+<body>
+
+<article>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <div>
+                <a class="nav-link create-account-btn me-2" role="button" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/createAccount}">Create Account</a>
+            </div>
+            <a class="navbar-brand" href="#">My Sedutive Blog Posts</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link btn-outline-primary rounded-pill fw-bold me-2" id="create-btn" role="button" th:href="@{/createNewPost}" sec:authorize="hasRole('ROLE_ADMIN')">Create New Post</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link logout-btn" role="button" aria-label="logout-btn" data-bs-toggle="modal" data-bs-target="#logoutConfirmationModal">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</article>
+<aside>
+    <div th:if = "${SuccessMessage}" class = "alert alert-success fade show alert-dismissible" role = "alert">
+        <strong th:text = "${SuccessMessage}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if = "${clutteredMessage}" class = "alert alert-danger fade show alert-dismissible" role = "alert">
+        <strong th:text = "${clutteredMessage}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if = "${accountSucessMessage}" class = "alert alert-success fade show alert-dismissible" role = "alert">
+        <strong th:text = "${accountSucessMessage}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if = "${aaccountFailedMessage}" class = "alert alert-danger fade show alert-dismissible" role = "alert">
+        <strong th:text = "${accountFailedMessage}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+</aside>
+<div class="container mt-5">
+    <h2 class="mb-4">Flirtatious Blog Posts</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4" th:each="post : ${posts}" >
+            <div class="card">
+                <img th:src="${post.imgURL}" th:if="${post.imgURL != null}" class="card-img-top" alt="Post Image">
+                <img th:src="@{/images/default.png}" th:if="${post.imgURL == null}" class="card-img-top" alt="Default Image">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${post.title}"></h5>
+                    <p class="card-text" th:text="${post.content}"></p>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a type="button" class="btn btn-danger mb-3" data-bs-toggle="modal" th:data-bs-target="'#deleteModal' + ${post.id}" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <i class="fas fa-trash-alt"></i> Delete Post
+                    </a>
+                    <a type="button" class="btn btn-primary mb-3" th:href="@{'/posts/edit/' + ${post.id}}" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <i class="fas fa-edit"></i> Edit Post
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:if = "${posts.size() == 0}">
+    <span class="text-muted text-danger text-center mt-3 mb-3 fw-bold fs-5 d-block">No posts found matching your search criteria.</span>
+</div>
+
+
+
+<footer class="footer bg-dark text-white py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <h5>About Me</h5>
+                <p class="mb-0">I'm NeoCourney, the author of these enticing blog posts. Here to provoke your thoughts and kindle your soul with captivating content.</p>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h5>Newsletter</h5>
+                <p>Stay updated with our latest posts:</p>
+                <form th:action = "@{/posts/search}" method="GET" class="d-flex mb-4">
+                    <div class="input-group">
+                        <input type="text" name="query" class="form-control" placeholder="Search posts..." required>
+                        <button type="submit" class="btn btn-primary ms-2">Search</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h5>Follow Me</h5>
+                <div class="social-icons">
+                    <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <p class="mb-0">&copy; 2024 NeoCourney. All rights reserved.</p>
+            <a href="#" class="btn btn-secondary btn-sm back-to-top">Back to Top</a>
+        </div>
+    </div>
+</footer>
+
+<div class="modal fade" id="logoutConfirmationModal" tabindex="-1" aria-labelledby="logoutConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutConfirmationModalLabel">Confirm Logout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to log out?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="/logout" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div th:each = "post : ${posts}">
+    <div class="modal fade modal-fullscreen" th:id="'deleteModal' + ${post.id}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" ></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this post?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a th:href = "@{'/posts/delete/' + ${post.id}}" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        var alertList = document.querySelectorAll('.alert');
+        alertList.forEach((alert) => {
+            setTimeout(() => {
+                alert.classList.add('fade-out');
+                setTimeout( () => {
+                    alert.style.display = 'none';
+                }, 500);
+            }, 3000);
+        });
+    });
+</script>
+
+</body>
+</html>
