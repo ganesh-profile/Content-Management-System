@@ -1,6 +1,7 @@
 package com.CMS.Content.Management.System.config;
 
 import com.CMS.Content.Management.System.security.user.userDetailServiceImp;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,10 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class webSecurityConfiguration{
 
-    @Autowired
+
     private userDetailServiceImp userDetailServiceImp ;
 
     @Autowired
@@ -40,45 +42,41 @@ public class webSecurityConfiguration{
         authenticationProvider.setUserDetailsService(userDetailServiceImp);
         return authenticationProvider;
     }
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity ) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/login").anonymous()
-                .antMatchers("/css/**" , "/js/**" ,"/img/**","/file/**","/uploads/**").permitAll()
-                .antMatchers("/users/**").hasRole("USER")
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-                .and()
-
-                .formLogin()
-                .loginPage("/login")
-                .loginProcessingUrl("/loginProcess") // as soon as we tuck down to the entire active btn
-                .defaultSuccessUrl("/posts")
-                .failureForwardUrl("/login?errorPoppedUp=true")
-                .and()
-
-                .rememberMe()
-                .key("unique")
-                .rememberMeCookieName("remember-me")
-                .rememberMeParameter("remember-me")
-                .tokenValiditySeconds((int) TimeUnit.SECONDS.toDays(21))
-                .and()
-
-                .logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout=success")
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID" , "remember-me")
-                .and()
-
-                .sessionManagement()
-                .maximumSessions(1)
-                .expiredUrl("/login?sessionExpired = true");
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login").anonymous()
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/file/**", "/uploads/**").permitAll()
+                        .requestMatchers("/users/**").hasRole("USER")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/loginProcess")
+                        .defaultSuccessUrl("/posts", true)
+                        .failureForwardUrl("/login?errorPoppedUp=true")
+                )
+                .rememberMe(remember -> remember
+                        .key("unique")
+                        .rememberMeCookieName("remember-me")
+                        .rememberMeParameter("remember-me")
+                        .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=success")
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID", "remember-me")
+                )
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .expiredUrl("/login?sessionExpired=true")
+                );
 
         return httpSecurity.build();
     }

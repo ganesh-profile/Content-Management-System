@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class userDetailServiceImp implements UserDetailsService {
 
-    private final userDetailRepository useDetailRepository;
+    private final userDetailRepository userDetailRepository;
 
     Logger logger = LoggerFactory.getLogger(userDetailServiceImp.class);
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
-        userDetailModel userDetailModel = useDetailRepository.loginProcess(username).orElseThrow(() -> {
+        userDetailModel userDetailModel = userDetailRepository.loginProcess(username).orElseThrow(() -> {
             logger.error("User not found with username; {} ", username);
             return new UsernameNotFoundException("User not found with username: " + username);
         });
